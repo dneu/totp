@@ -1,6 +1,6 @@
 #!/bin/bash
 
-homedir=/usr/lib/topt/
+homedir=/usr/lib/totp/
 
 mkdir -p $homedir
 cp providers.json $homedir
@@ -9,3 +9,5 @@ cp *.js $homedir
 
 cd $homedir
 npm install
+
+echo "Consider running pm2 start $homedir/serve.js"
