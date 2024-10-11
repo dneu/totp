@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "reload": "pm2 reload",
-    "update": "git pull"
+    "reload": "git pull && sudo ./setup && pm2 reload"
   },
   "author": "",
   "license": "ISC",
