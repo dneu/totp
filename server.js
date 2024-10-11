@@ -3,14 +3,13 @@ const fs = require('fs');
 const TOTP = require('totp-generator').TOTP;
 
 const hostname = '127.0.0.1';
-const port = 80;
+const port = 8080;
 
 const accessibleHours = [8, 12, 18, 21];
 
 // Read providers
 let providers;
 let providerNames = [];
-let lcProviderNames = [];
 async function readProviders(){
   providerNames = [];
   // read providers
@@ -19,6 +18,7 @@ async function readProviders(){
 }
 
 const server = createServer(async (req, res) => {
+  try{
   await readProviders();
   
   res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -66,9 +66,10 @@ const server = createServer(async (req, res) => {
   res.end(`<h1>${prvName}</h1>
     <h3>${otp}</h3>
     <p>${secsRemaining} seconds remaining</p>
-`);
-
-
+  `);
+  } catch(e){
+    res.end(e);
+  }
 });
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
