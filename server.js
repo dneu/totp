@@ -19,56 +19,56 @@ async function readProviders(){
 
 const server = createServer(async (req, res) => {
   try{
-  await readProviders();
-  
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  const url = req.url;
+    await readProviders();
+    
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    const url = req.url;
 
-  if(url==='/'){
-    let body = '';
-    for(const provider of Object.keys(providers)){
-      body += `<a href=${provider}>${provider}</a>\n`;
+    if(url==='/'){
+      let body = '';
+      for(const provider of Object.keys(providers)){
+        body += `<a href=${provider}>${provider}</a>\n`;
+      }
+      res.end(body);
+      return;
     }
-    res.end(body);
-    return;
-  }
 
-  const sUrl = url.slice(1).toLowerCase();
-  let prvName;
-  for(const prv of Object.keys(providers)){
-    if(prv.toLowerCase() === sUrl.toLowerCase()){
-      prvName = prv;
-      break;
+    const sUrl = url.slice(1).toLowerCase();
+    let prvName;
+    for(const prv of Object.keys(providers)){
+      if(prv.toLowerCase() === sUrl.toLowerCase()){
+        prvName = prv;
+        break;
+      }
     }
-  }
 
-  if(!prvName){
-    res.end(`provider names: ${Object.keys(providers)}`);
-    return;
-  }
+    if(!prvName){
+      res.end(`provider names: ${Object.keys(providers)}`);
+      return;
+    }
 
-  const now = new Date();
-  const hour = now.getHours();
-  const minute = now.getMinutes();
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
 
-  //TODO: remove
-  const accessible=true;  
-  //const accessible = accessibleHours.includes(hour) && minute < 15; 
-  if(!accessible){
-    res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
-    return;
-  }
+    //TODO: remove
+    const accessible=true;  
+    //const accessible = accessibleHours.includes(hour) && minute < 15; 
+    if(!accessible){
+      res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
+      return;
+    }
 
-  const provider = providers[prvName];
-  const { otp } = TOTP.generate(provider.code);
-  const secsRemaining = 30-now.getSeconds()%30;
+    const provider = providers[prvName];
+    const { otp } = TOTP.generate(provider.code);
+    const secsRemaining = 30-now.getSeconds()%30;
 
-  res.end(`<h1>${prvName}</h1>
-    <h3>${otp}</h3>
-    <p>${secsRemaining} seconds remaining</p>
-  `);
+    res.end(`<h1>${prvName}</h1>
+      <h3>${otp}</h3>
+      <p>${secsRemaining} seconds remaining</p>
+    `);
   } catch(e){
-    res.end(e);
+    res.end(JSON.stringify(e));
   }
 });
 server.listen(port, hostname, () => {
