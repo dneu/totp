@@ -10,4 +10,4 @@ cp *.js $homedir
 cd $homedir
 npm install
 
-echo "Consider running pm2 start ${homedir}server.js"
+echo "Consider running pm2 start ${homedir}server.js to set up or pm2 restart"

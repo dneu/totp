@@ -53,9 +53,8 @@ const server = createServer(async (req, res) => {
     const hour = now.getHours();
     const minute = now.getMinutes();
 
-    //TODO: remove
-    const accessible=true;  
-    //const accessible = accessibleHours.includes(hour) && minute < 15; 
+    //const accessible=true;  
+    const accessible = accessibleHours.includes(hour) && minute < 15; 
     if(!accessible){
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
