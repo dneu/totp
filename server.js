@@ -3,7 +3,7 @@ const fs = require('fs');
 const TOTP = require('totp-generator').TOTP;
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 80;
 
 const accessibleHours = [8, 12, 18, 21];
 
