@@ -5,6 +5,8 @@ const TOTP = require('totp-generator').TOTP;
 const hostname = '127.0.0.1';
 const port = 8080;
 
+const providersFile='/usr/lib/topt/providers.json';
+
 const accessibleHours = [8, 12, 18, 21];
 
 // Read providers
@@ -13,7 +15,7 @@ let providerNames = [];
 async function readProviders(){
   providerNames = [];
   // read providers
-  const providerStr=fs.readFileSync('providers.json','utf-8');
+  const providerStr=fs.readFileSync(providersFile,'utf-8');
   providers = JSON.parse(providerStr);
 }
 

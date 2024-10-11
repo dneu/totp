@@ -1,0 +1,11 @@
+#!/bin/bash
+
+homedir=/usr/lib/topt/
+
+mkdir -p $homedir
+cp providers.json $homedir
+cp package.json $homedir
+cp *.js $homedir
+
+cd $homedir
+npm install
