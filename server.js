@@ -1,11 +1,15 @@
 import { createServer } from 'node:http';
-import { getProviders, getOtp, runOnLaunch } from './providers.js';
-import { secsRemaining, isAccessible } from './util.js';
+import { getProviders, getOtp, runOnLaunch } from './app/providers.js';
+import { secsRemaining, isAccessible } from './app/util.js';
+import * as pug from 'pug';
 
 const hostname = '127.0.0.1';
 const port = 8080;
 
 runOnLaunch();
+
+const getIndex = pug.compileFile('templates/index.pug');
+console.log(getIndex({names:["hey","you"]}));
 
 const server = createServer(async (req, res) => {
   try{
