@@ -9,38 +9,33 @@ const port = 8080;
 runOnLaunch();
 
 const getIndex = pug.compileFile('templates/index.pug');
+const getProvider = pug.compileFile('templates/provider.pug');
 
 const server = createServer(async (req, res) => {
   try{
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    const url = req.url;
-
+    const url = req.url.replace('/','').split('/');
     console.log('url: ' + url);
 
-    if(url==='/'){
+    if(url.length === 0){
       const providers = await getProviders();
       const providerNames = Object.keys(providers);
       res.end(getIndex({providerNames}));
       return;
     }
 
-    if(!url.startsWith('/p/')){
+    if(!url[0] ==='p'){
       res.end();
       return;
     }
 
     const providers = await getProviders();
-    const sUrl = url.replace('/p/','').toLowerCase();
-    let prvName;
-    for(const prv of Object.keys(providers)){
-      if(prv.toLowerCase() === sUrl.toLowerCase()){
-        prvName = prv;
-        break;
-      }
-    }
+    const providerNames = Object.keys(providers);
+    const pParam = url[1]?.toLowerCase();
+    const prvName = providerNames.find(name=>name.toLowerCase() === pParam)
 
     if(!prvName){
-      res.end(`Valid provider names: ${Object.keys(providers).join(', ')}`);
+      res.end(`Valid provider names: ${providerNames.join(', ')}`);
       return;
     }
 
@@ -48,12 +43,14 @@ const server = createServer(async (req, res) => {
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
     }
-    
+
     const provider = providers[prvName];
-    res.end(`<h1>${prvName}</h1>
-      <h3>${getOtp(provider)}</h3>
-      <p>${secsRemaining()} seconds remaining</p>
-    `);
+    provider.name = prvName;
+    provider.otp = getOtp(provider);
+    provider.secsRemaining = secsRemaining();
+    console.log(JSON.stringify(provider,null,2));
+
+    res.end(getProvider({provider}));
   } catch(e){
     console.error(e.toString());
     console.error(e.stack);
