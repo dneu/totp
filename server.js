@@ -1,6 +1,7 @@
-const { createServer } = require('node:http');
-const fs = require('fs');
-const TOTP = require('totp-generator').TOTP;
+import { createServer } from 'node:http';
+import * as fs from 'fs';
+import { TOTP } from 'totp-generator';
+//const TOTP = require('totp-generator').TOTP;
 
 // work regardless of the time of day
 const override=true;
