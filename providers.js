@@ -16,11 +16,9 @@ export async function runOnLaunch(){
 
 //TODO: how often to open and close db conn
 export async function getProviders(){
-  console.log('getProviders');
   const data = await readSettings('danny');
   console.log(data);
-  const providerStr=fs.readFileSync(providersFile,'utf-8');
-  return JSON.parse(providerStr);
+  return data;
 }
 
 export function getOtp(provider){
@@ -28,10 +26,7 @@ export function getOtp(provider){
     return otp;
 }
 
-
 async function readSettings(username){
-  //const db = await new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY);
-  
   let db;
   try{
     db = await open({
@@ -40,7 +35,7 @@ async function readSettings(username){
       driver: sqlite3.Database
     });
     const result = await db.get('SELECT settings FROM users WHERE username = ?',[username]);
-    console.log(result);
+    return JSON.parse(result.settings);
   } catch(e){
     console.log('DB error');
     console.log(e);
@@ -48,23 +43,6 @@ async function readSettings(username){
   } finally{
     if(db) db.close();
   }
-
-  /*const readData = (username) => {
-    const sql = `SELECT * FROM users WHERE username = ?`;
-  
-    db.get(sql, [username], (err, row) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      if (row) {
-        console.log(row); // row contains the matching row
-      } else {
-        console.log('No record found');
-      }
-    });
-  };
-  
-  readData('danny');*/
 }
 
 
