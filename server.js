@@ -1,28 +1,15 @@
 import { createServer } from 'node:http';
-import * as fs from 'fs';
-import { TOTP } from 'totp-generator';
-//const TOTP = require('totp-generator').TOTP;
+import { getProviders } from './providers.js';
+import { secsRemaining, isAccessible } from './util.js';
 
-// work regardless of the time of day
-const override=true;
 const hostname = '127.0.0.1';
 const port = 8080;
-const providersFile='/etc/totp_providers.json';
-const accessibleHours = [8, 12, 18, 21];
-
-// Read providers
-let providers;
-let providerNames = [];
-async function readProviders(){
-  providerNames = [];
-  // read providers
-  const providerStr=fs.readFileSync(providersFile,'utf-8');
-  providers = JSON.parse(providerStr);
-}
 
 const server = createServer(async (req, res) => {
   try{
-    await readProviders();
+    const providers = getProviders();
+    console.log('providers');
+    console.log(providers);
     
     res.writeHead(200, { 'Content-Type': 'text/html' });
     const url = req.url;
@@ -46,31 +33,26 @@ const server = createServer(async (req, res) => {
     }
 
     if(!prvName){
-      res.end(`provider names: ${Object.keys(providers)}`);
+      res.end(`Valid provider names: ${Object.keys(providers)}`);
       return;
     }
 
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-
-    //const accessible=true;  
-    const accessible = (accessibleHours.includes(hour) && minute < 15) || override;
-    if(!accessible){
+    if(!isAccessible()){
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
     }
 
     const provider = providers[prvName];
-    const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
-    const secsRemaining = 30-now.getSeconds()%30;
+    const otp = getOtp(provider);
 
     res.end(`<h1>${prvName}</h1>
       <h3>${otp}</h3>
       <p>${secsRemaining} seconds remaining</p>
     `);
   } catch(e){
-    res.end(JSON.stringify(e));
+    console.error(e.toString());
+    console.error(e.stack);
+    res.end(e.toString());
   }
 });
 server.listen(port, hostname, () => {
