@@ -4,9 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "reload": "git pull && sudo ./setup && pm2 reload all"
+    "startDev": "node server.js",
+    "startProd": "pm2 start /usr/lib/totp/server.js",
+    "stopProd": "pm2 delete server",
+    "reloadProd": "git pull && sudo ./setup && pm2 reload all"
   },
   "author": "",
   "license": "ISC",

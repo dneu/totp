@@ -2,11 +2,11 @@ const { createServer } = require('node:http');
 const fs = require('fs');
 const TOTP = require('totp-generator').TOTP;
 
+// work regardless of the time of day
+const override=true;
 const hostname = '127.0.0.1';
 const port = 8080;
-
-const providersFile='/usr/lib/totp/providers.json';
-
+const providersFile='/etc/totp_providers.json';
 const accessibleHours = [8, 12, 18, 21];
 
 // Read providers
@@ -54,7 +54,7 @@ const server = createServer(async (req, res) => {
     const minute = now.getMinutes();
 
     //const accessible=true;  
-    const accessible = accessibleHours.includes(hour) && minute < 15; 
+    const accessible = accessibleHours.includes(hour) && minute < 15 && !override; 
     if(!accessible){
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
