@@ -14,7 +14,7 @@ async function setup(){
         return;
     }
     
-    await fs.promises.rm(targetDir, { recursive: true, force: true });
+    fs.promises.rm(targetDir, { recursive: true, force: true });
 
     const dirContents = await fs.promises.readdir(cwd, { withFileTypes: true });
     for (let entry of dirContents) {
