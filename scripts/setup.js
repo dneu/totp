@@ -14,7 +14,7 @@ async function setup(){
         return;
     }
 
-    fs.rmSync(targetDir, { recursive: true, force: true });
+    //fs.rmSync(targetDir, { recursive: true, force: true });
 
     const dirContents = await fs.promises.readdir(cwd, { withFileTypes: true });
     for (let entry of dirContents) {
