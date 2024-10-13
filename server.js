@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { getProviders } from './providers.js';
+import { getProviders, getOtp } from './providers.js';
 import { secsRemaining, isAccessible } from './util.js';
 
 const hostname = '127.0.0.1';
@@ -7,13 +7,10 @@ const port = 8080;
 
 const server = createServer(async (req, res) => {
   try{
-    const providers = getProviders();
-    console.log('providers');
-    console.log(providers);
-    
     res.writeHead(200, { 'Content-Type': 'text/html' });
     const url = req.url;
 
+    const providers = await getProviders();
     if(url==='/'){
       let body = '';
       for(const provider of Object.keys(providers)){
@@ -33,7 +30,7 @@ const server = createServer(async (req, res) => {
     }
 
     if(!prvName){
-      res.end(`Valid provider names: ${Object.keys(providers)}`);
+      res.end(`Valid provider names: ${Object.keys(providers).join(', ')}`);
       return;
     }
 
@@ -43,11 +40,9 @@ const server = createServer(async (req, res) => {
     }
 
     const provider = providers[prvName];
-    const otp = getOtp(provider);
-
     res.end(`<h1>${prvName}</h1>
-      <h3>${otp}</h3>
-      <p>${secsRemaining} seconds remaining</p>
+      <h3>${getOtp(provider)}</h3>
+      <p>${secsRemaining()} seconds remaining</p>
     `);
   } catch(e){
     console.error(e.toString());

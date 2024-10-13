@@ -9,7 +9,7 @@ export async function getProviders(){
   return JSON.parse(providerStr);
 }
 
-export async function getToken(provider){
+export function getOtp(provider){
     const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
     return otp;
 }
