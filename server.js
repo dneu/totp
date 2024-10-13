@@ -54,14 +54,14 @@ const server = createServer(async (req, res) => {
     const minute = now.getMinutes();
 
     //const accessible=true;  
-    const accessible = accessibleHours.includes(hour) && minute < 15 && !override; 
+    const accessible = (accessibleHours.includes(hour) && minute < 15) || override;
     if(!accessible){
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
     }
 
     const provider = providers[prvName];
-    const { otp } = TOTP.generate(provider.code);
+    const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
     const secsRemaining = 30-now.getSeconds()%30;
 
     res.end(`<h1>${prvName}</h1>
