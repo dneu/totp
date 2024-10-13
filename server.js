@@ -14,10 +14,12 @@ const getProvider = pug.compileFile('templates/provider.pug');
 const server = createServer(async (req, res) => {
   try{
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    const url = req.url.replace('/','').split('/');
-    console.log('url: ' + url);
+    console.log('raw url: ' + req.url);
+    const url = req.url.split('/').filter(i => i);
+    console.log('url: ' + JSON.stringify(url));
 
     if(url.length === 0){
+      console.log('root');
       const providers = await getProviders();
       const providerNames = Object.keys(providers);
       res.end(getIndex({providerNames}));

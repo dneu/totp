@@ -3,12 +3,11 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite'
 import { TOTP } from 'totp-generator';
 import os from 'os';
-
+import * as path from 'path';
 
 const providersFile='/etc/totp_providers.json';
-const dbPath = os.type().includes('Windows') ? 'C:\\etc\\totp.db' : '/etc/topt.db';
-
-console.log(os.type());
+const appDataDir =process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share");
+const dbPath = path.join(appDataDir,'/totp/totp.db');
 
 //Test function
 export async function runOnLaunch(){
@@ -37,6 +36,7 @@ async function readSettings(username){
     const result = await db.get('SELECT settings FROM users WHERE username = ?',[username]);
     return JSON.parse(result.settings);
   } catch(e){
+    console.log('db path: '+dbPath);
     console.log('DB error');
     console.log(e);
     throw e;
