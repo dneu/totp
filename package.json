@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "prod": "pm2 start /usr/lib/totp/server.js",
-    "db": "sudo sqlite3 /etc/totp.db",
+    "db": "sqlite3 /etc/totp.db",
     "stopProd": "pm2 delete server",
     "reloadProd": "git pull && sudo ./setup && pm2 reload all"
   },
@@ -14,6 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "nodemon": "^3.1.7",
+    "pug": "^3.0.3",
+    "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "totp-generator": "^1.0.0"
   },
