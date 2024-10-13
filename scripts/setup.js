@@ -13,8 +13,8 @@ async function setup(){
         console.error(`Must run from totp directory. Current dir: ${cwd}`);
         return;
     }
-    
-    fs.promises.rm(targetDir, { recursive: true, force: true });
+
+    fs.rmSync(targetDir, { recursive: true, force: true });
 
     const dirContents = await fs.promises.readdir(cwd, { withFileTypes: true });
     for (let entry of dirContents) {
