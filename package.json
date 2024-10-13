@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon -e js,pug server.js",
     "prod": "pm2 start /usr/lib/totp/server.js",
     "db": "sqlite3 /etc/totp.db",
     "stopProd": "pm2 delete server",

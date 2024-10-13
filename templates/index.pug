@@ -4,7 +4,8 @@
     <h1>TOTP timeout</h1>
     <h3>Providers:</h3>
     ul
-        each val in #{names}
-            li= val
+        each name in providerNames
+            li
+                a(href='/p/' + name.toLowerCase())= name
 </body>
 </html>

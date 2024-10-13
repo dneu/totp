@@ -9,7 +9,6 @@ const port = 8080;
 runOnLaunch();
 
 const getIndex = pug.compileFile('templates/index.pug');
-console.log(getIndex({names:["hey","you"]}));
 
 const server = createServer(async (req, res) => {
   try{
@@ -20,11 +19,8 @@ const server = createServer(async (req, res) => {
 
     if(url==='/'){
       const providers = await getProviders();
-      let body = '';
-      for(const provider of Object.keys(providers)){
-        body += `<a href=/p/${provider.toLowerCase()}>${provider}</a>\n`;
-      }
-      res.end(body);
+      const providerNames = Object.keys(providers);
+      res.end(getIndex({providerNames}));
       return;
     }
 
@@ -52,7 +48,7 @@ const server = createServer(async (req, res) => {
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
     }
-
+    
     const provider = providers[prvName];
     res.end(`<h1>${prvName}</h1>
       <h3>${getOtp(provider)}</h3>
