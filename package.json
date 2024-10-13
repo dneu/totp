@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "prod": "pm2 start /usr/lib/totp/server.js",
+    "db": "sudo sqlite3 /etc/totp.db",
     "stopProd": "pm2 delete server",
     "reloadProd": "git pull && sudo ./setup && pm2 reload all"
   },
