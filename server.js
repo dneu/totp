@@ -5,7 +5,7 @@ const TOTP = require('totp-generator').TOTP;
 const hostname = '127.0.0.1';
 const port = 8080;
 
-const providersFile='/usr/lib/topt/providers.json';
+const providersFile='/usr/lib/totp/providers.json';
 
 const accessibleHours = [8, 12, 18, 21];
 
