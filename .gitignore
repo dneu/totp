@@ -9,8 +9,6 @@ lerna-debug.log*
 
 #secrets
 secrets
-
-package-lock.json
 providers.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
