@@ -1,5 +1,5 @@
 // work regardless of the time of day
-const override=true;
+//const override=true;
 const accessibleHours = [8, 12, 18, 21];
 
 export function secsRemaining(){

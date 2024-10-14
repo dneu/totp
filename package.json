@@ -8,7 +8,7 @@
     "prod": "pm2 start /usr/lib/totp/server.js",
     "db": "sqlite3 /etc/totp.db",
     "stopProd": "pm2 delete server",
-    "reloadProd": "git pull && sudo node scripts/setup.js && npm install /usr/lib/topt/ && pm2 delete server ; pm2 start /usr/lib/topt/server.js"
+    "deprecatedReloadProd": "git pull && sudo node scripts/setup.js && npm install /usr/lib/topt/ && pm2 delete server ; pm2 start /usr/lib/topt/server.js"
   },
   "author": "",
   "license": "ISC",
