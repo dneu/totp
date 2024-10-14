@@ -5,3 +5,5 @@ html
     h1= provider.name
     h3= provider.otp
     p= 'Seconds remaining: ' + provider.secsRemaining
+    div
+      a(href='/p/' + provider.name.toLowerCase() + '/delete')= 'Delete'

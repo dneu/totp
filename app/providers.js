@@ -5,7 +5,7 @@ import { TOTP } from 'totp-generator';
 import os from 'os';
 import * as path from 'path';
 
-const providersFile='/etc/totp_providers.json';
+const theUser='danny'; //only one user for now
 const appDataDir =process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share");
 const dbPath = path.join(appDataDir,'/totp/totp.db');
 
@@ -15,7 +15,7 @@ export async function runOnLaunch(){
 
 //TODO: how often to open and close db conn
 export async function getProviders(){
-  const data = await readSettings('danny');
+  const data = await readSettings();
   console.log(data);
   return data;
 }
@@ -25,7 +25,7 @@ export function getOtp(provider){
     return otp;
 }
 
-async function readSettings(username){
+async function readSettings(){
   let db;
   try{
     db = await open({
@@ -33,11 +33,32 @@ async function readSettings(username){
       mode: sqlite3.OPEN_READONLY,
       driver: sqlite3.Database
     });
-    const result = await db.get('SELECT settings FROM users WHERE username = ?',[username]);
+    const result = await db.get('SELECT settings FROM users WHERE username = ?',[theUser]);
     return JSON.parse(result.settings);
   } catch(e){
-    console.log('db path: '+dbPath);
-    console.log('DB error');
+    console.log(`DB error (${dbPath})`);
+    console.log(e);
+    throw e;
+  } finally{
+    if(db) db.close();
+  }
+}
+
+//TODO: make this time sensitive to make sure it's not being done repeatedly
+export async function deleteProvider(providers, provider){
+  let db;
+  try{
+    const settings = await readSettings();
+    delete settings[provider.name];
+    const newJson = JSON.stringify(settings);
+    const db = await open({
+      filename: dbPath,
+      mode: sqlite3.OPEN_READWRITE,
+      driver: sqlite3.Database
+    });
+    const result = await db.run('update users set settings = ? where username = ?',newJson,theUser);
+  } catch(e){
+    console.log(`DB error (${dbPath})`);
     console.log(e);
     throw e;
   } finally{
