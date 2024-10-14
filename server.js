@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { getProviders, getOtp, runOnLaunch, deleteProvider } from './app/providers.js';
-import { secsRemaining, isAccessible } from './app/util.js';
+import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import * as pug from 'pug';
 
 const hostname = '127.0.0.1';
@@ -40,6 +40,7 @@ const server = createServer(async (req, res) => {
     const pParam = url[1]?.toLowerCase();
     const prvName = providerNames.find(name=>name.toLowerCase() === pParam);
     if(!prvName){
+      res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(`Valid provider names: ${providerNames.join(', ')}`);
       return;
     }
@@ -72,10 +73,12 @@ const server = createServer(async (req, res) => {
 
     res.writeHead(200, { 'Content-Type': 'text/html' });
 
-    if(!isAccessible()){
+    if(!(await isAccessible())){
+      console.log('is not accessible');
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
       return;
     }
+    console.log('is accessible');
 
     provider.otp = getOtp(provider);
     provider.secsRemaining = secsRemaining();
