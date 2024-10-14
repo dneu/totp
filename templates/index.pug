@@ -1,11 +1,10 @@
-<html>
-<title>TOTP timeout</title>
-<body>
-    <h1>TOTP timeout</h1>
-    <h3>Providers:</h3>
+html
+  title= 'TOTP timeout'
+  body
+    h1= 'TOTP timeout'
+    h3= 'Providers:'
     ul
-        each name in providerNames
-            li
-                a(href='/p/' + name.toLowerCase())= name
-</body>
-</html>
+      each name in providerNames
+        li
+          a(href='/p/' + name.toLowerCase())= name
+    a(href='/create')= 'Add new provider'

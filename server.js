@@ -11,6 +11,7 @@ runOnLaunch();
 const getIndex = pug.compileFile('templates/index.pug');
 const getProvider = pug.compileFile('templates/provider.pug');
 const getDelete = pug.compileFile('templates/delete.pug');
+const getCreate = pug.compileFile('templates/create.pug');
 
 const server = createServer(async (req, res) => {
   try{
@@ -21,19 +22,19 @@ const server = createServer(async (req, res) => {
     const providers = await getProviders();
     const providerNames = Object.keys(providers);
 
-    // Check for incorrect path
-    if(url.length > 0 && url[0] !=='p'){
-      res.writeHead(404);
-      res.end();
-      return;
-    }
-
-
     if(url.length === 0){
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(getIndex({providerNames}));
       return;
     }
+
+    if(url[0] === 'create'){
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      console.log('create');
+      res.end(getCreate());
+      return;
+    }
+
 
     
     const pParam = url[1]?.toLowerCase();
@@ -54,14 +55,22 @@ const server = createServer(async (req, res) => {
     }
 
     // Everything past this point is a valid URL that does not redirect
-    res.writeHead(200, { 'Content-Type': 'text/html' });
 
     // DELETE PAGE
     if(url.length === 3 && url[2].toLowerCase() === 'delete'){
+      res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(getDelete({provider}));
       return;
     }
+    
+    // Check for incorrect path
+    if(url.length > 0 && url[0] !=='p'){
+      res.writeHead(404);
+      res.end();
+      return;
+    }
 
+    res.writeHead(200, { 'Content-Type': 'text/html' });
 
     if(!isAccessible()){
       res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
