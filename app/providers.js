@@ -14,10 +14,21 @@ export async function runOnLaunch(){
 }
 
 //TODO: how often to open and close db conn
-export async function getProviders(){
-  const data = await readSettings();
-  console.log(data);
-  return data;
+export async function getProviders(name){
+  const providers = await readSettings();
+
+  const providerNames = Object.keys(providers); 
+  for(const providerName of providerNames){
+    providers[providerName].name = providerName;
+  }
+  const foundName = providerNames.find(pname=>pname.toLowerCase() === name);
+  const thisProvider = providers[foundName];
+  
+  return {
+    providers,
+    providerNames,
+    thisProvider
+  }; 
 }
 
 export function getOtp(provider){

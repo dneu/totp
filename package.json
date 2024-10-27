@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.21.1",
     "nodemon": "^3.1.7",
     "pug": "^3.0.3",
     "sqlite": "^5.1.1",
