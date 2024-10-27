@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch with nodemon",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
+        "args": ["${workspaceRoot}/app.js"],
+        "runtimeArgs": ["--nolazy"]
+      }
+    ]
+  }
