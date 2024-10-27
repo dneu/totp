@@ -1,3 +1,14 @@
 html
+  head
+    title Add 2FA Provider
   body
-    h1= 'Create new'
+    h1 Add new 2FA provider
+    form(action="/create" method="POST")
+      label(for="providerName") Provider Name: 
+      input#providerName(type="text" name="providerName" required)
+      br
+      label(for="providerCode") Provider Code: 
+      input#providerCode(type="text" name="providerCode" required)
+      br
+      br
+      button(type="submit") Add Provider

@@ -13,7 +13,6 @@ const dbPath = path.join(appDataDir,'/totp/totp.db');
 export async function runOnLaunch(){
 }
 
-//TODO: how often to open and close db conn
 export async function getProviders(name){
   const providers = await readSettings();
 
@@ -29,6 +28,10 @@ export async function getProviders(name){
     providerNames,
     thisProvider
   }; 
+}
+
+export async function setProvider(name,code){
+  
 }
 
 export function getOtp(provider){

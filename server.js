@@ -26,6 +26,13 @@ app.get('/create', async (req,res)=>{
   res.send(getCreate());
 });
 
+// Route to handle form submission
+app.post('/create', (req, res) => {
+  const { providerName, providerCode } = req.body;
+  console.log(`Provider Name: ${providerName}, Provider Code: ${providerCode}`);
+  res.redirect('/');
+});
+
 app.get('/p/:providerName', async (req, res) => {
   const p = await getProviders(req.params.providerName);
 
