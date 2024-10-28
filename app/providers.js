@@ -1,17 +1,8 @@
-import * as fs from 'fs';
 import sqlite3 from 'sqlite3';
-import { open } from 'sqlite'
 import { TOTP } from 'totp-generator';
-import os from 'os';
-import * as path from 'path';
+import {openDb} from './db.js';
 
 const theUser='danny'; //only one user for now
-const appDataDir =process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share");
-const dbPath = path.join(appDataDir,'/totp/totp.db');
-
-//Test function
-export async function runOnLaunch(){
-}
 
 export async function getProviders(name){
   const providers = await readSettings();
@@ -30,16 +21,8 @@ export async function setProvider(provider){
     const settings = await readSettings();
     settings.push(provider);
     const newJson = JSON.stringify(settings);
-    const db = await open({
-      filename: dbPath,
-      mode: sqlite3.OPEN_READWRITE,
-      driver: sqlite3.Database
-    });
+    db = await openDb('rw');
     const result = await db.run('update users set settings = ? where username = ?',newJson,theUser);
-  } catch(e){
-    console.log(`DB error (${dbPath})`);
-    console.log(e);
-    throw e;
   } finally{
     if(db) db.close();
   }
@@ -54,17 +37,9 @@ export function getOtp(provider){
 async function readSettings(){
   let db;
   try{
-    db = await open({
-      filename: dbPath,
-      mode: sqlite3.OPEN_READONLY,
-      driver: sqlite3.Database
-    });
+    db = await openDb('r');
     const result = await db.get('SELECT settings FROM users WHERE username = ?',[theUser]);
     return JSON.parse(result.settings);
-  } catch(e){
-    console.log(`DB error (${dbPath})`);
-    console.log(e);
-    throw e;
   } finally{
     if(db) db.close();
   }
@@ -81,16 +56,8 @@ export async function deleteProvider(providers, provider){
     console.log('post delete: ');
     console.log(newSettings);
     const newJson = JSON.stringify(newSettings);
-    const db = await open({
-      filename: dbPath,
-      mode: sqlite3.OPEN_READWRITE,
-      driver: sqlite3.Database
-    });
+    const db = await openDb('rw');
     const result = await db.run('update users set settings = ? where username = ?',newJson,theUser);
-  } catch(e){
-    console.log(`DB error (${dbPath})`);
-    console.log(e);
-    throw e;
   } finally{
     if(db) db.close();
   }
@@ -99,17 +66,9 @@ export async function deleteProvider(providers, provider){
 export async function readConfig(key){
   let db;
   try{
-    db = await open({
-      filename: dbPath,
-      mode: sqlite3.OPEN_READONLY,
-      driver: sqlite3.Database
-    });
+    db = await openDb('r');
     const result = await db.get('SELECT value FROM config WHERE key = ?',[key]);
     return result.value;
-  } catch(e){
-    console.log(`DB error (${dbPath})`);
-    console.log(e);
-    throw e;
   } finally{
     if(db) db.close();
   }

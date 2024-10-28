@@ -1,14 +1,18 @@
-import { getProviders, getOtp, runOnLaunch, deleteProvider, setProvider, readConfig } from './app/providers.js';
+import { getProviders, getOtp, deleteProvider, setProvider, readConfig } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
+import bcrypt from 'bcrypt';
 
 const app = express();
 
 app.set('view engine', 'pug');
 app.set('views', './views');
 app.use(bodyParser.urlencoded({ extended: true }));
+
+const users = {};
+
 
 ////////////////////////   LOG IN STUFF   ////////////////////////
 // Set up session management
@@ -22,6 +26,28 @@ app.use(
 
 // Simple hardcoded user for authentication example
 const USER = { username: 'admin', password: 'whatafundntest' };
+
+app.get('/register', (req, res) => {
+  res.render('register', { message: '' });
+});
+
+// POST: Handle user registration
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  //TODO: make not a in-memory store
+  if (users[username]) {
+    return res.render('register', { message: 'User already exists!' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash password
+    users[username] = hashedPassword; // Store hashed password
+    res.redirect('/login');
+  } catch (error) {
+    res.render('register', { message: 'Error registering user!' });
+  }
+});
 
 
 // Login middleware
