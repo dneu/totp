@@ -3,6 +3,8 @@ import { getProviders, getOtp, runOnLaunch, deleteProvider, setProvider } from '
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import * as pug from 'pug';
 import express from 'express';
+import bodyParser from 'body-parser';
+import expressSession from 'express-session';
 
 console.log('starting...');
 const port = 8080;
@@ -15,7 +17,7 @@ const getDelete = pug.compileFile('templates/delete.pug');
 const getCreate = pug.compileFile('templates/create.pug');
 
 const app = express();
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 ////////////////////////   INDEX   ////////////////////////
@@ -73,7 +75,7 @@ app.get('/p/:providerName/delete', async (req, res) => {
 app.post('/p/:providerName/delete', async (req, res) => {
   const p = await getProviders(req.params.providerName);
   if(req.body.action === 'delete'){
-    deleteProvider(p.providers, p.thisProvider);
+    await deleteProvider(p.providers, p.thisProvider);
     res.redirect('/');
     return;
   }
