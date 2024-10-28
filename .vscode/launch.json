@@ -6,7 +6,7 @@
         "type": "node",
         "request": "launch",
         "program": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
-        "args": ["${workspaceRoot}/app.js"],
+        "args": ["-e","js,pug","server.js"],
         "runtimeArgs": ["--nolazy"]
       }
     ]

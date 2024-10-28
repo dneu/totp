@@ -15,14 +15,8 @@ export async function runOnLaunch(){
 
 export async function getProviders(name){
   const providers = await readSettings();
-
-  const providerNames = Object.keys(providers); 
-  for(const providerName of providerNames){
-    providers[providerName].name = providerName;
-  }
-  const foundName = providerNames.find(pname=>pname.toLowerCase() === name);
-  const thisProvider = providers[foundName];
-  
+  const thisProvider = providers.find(p=>p.name.toLowerCase() === name);
+  const providerNames = providers.map(p=>p.name);
   return {
     providers,
     providerNames,
@@ -30,9 +24,27 @@ export async function getProviders(name){
   }; 
 }
 
-export async function setProvider(name,code){
-  
+export async function setProvider(provider){
+  let db;
+  try{
+    const settings = await readSettings();
+    settings.push(provider);
+    const newJson = JSON.stringify(settings);
+    const db = await open({
+      filename: dbPath,
+      mode: sqlite3.OPEN_READWRITE,
+      driver: sqlite3.Database
+    });
+    const result = await db.run('update users set settings = ? where username = ?',newJson,theUser);
+  } catch(e){
+    console.log(`DB error (${dbPath})`);
+    console.log(e);
+    throw e;
+  } finally{
+    if(db) db.close();
+  }
 }
+
 
 export function getOtp(provider){
     const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
@@ -63,8 +75,12 @@ export async function deleteProvider(providers, provider){
   let db;
   try{
     const settings = await readSettings();
-    delete settings[provider.name];
-    const newJson = JSON.stringify(settings);
+    console.log('pre delete: ');
+    console.log(settings);
+    const newSettings = providers.filter(p=> p.name!==provider.name);
+    console.log('post delete: ');
+    console.log(newSettings);
+    const newJson = JSON.stringify(newSettings);
     const db = await open({
       filename: dbPath,
       mode: sqlite3.OPEN_READWRITE,
