@@ -6,17 +6,16 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
 
-console.log('starting...');
-const port = 8080;
+const app = express();
 
-runOnLaunch();
+app.set('view engine', 'pug');
+app.set('views', './views');
 
-const getIndex = pug.compileFile('templates/index.pug');
+/*const getIndex = pug.compileFile('templates/index.pug');
 const getProvider = pug.compileFile('templates/provider.pug');
 const getDelete = pug.compileFile('templates/delete.pug');
-const getCreate = pug.compileFile('templates/create.pug');
+const getCreate = pug.compileFile('templates/create.pug');*/
 
-const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -25,18 +24,17 @@ app.get('/',async (req,res)=>{
   console.log('loading index');
   const p = await getProviders();
   console.log(JSON.stringify(p));
-  res.send(getIndex({providerNames: p.providerNames}));
+  res.render('index',{providerNames: p.providerNames});
 });
 
 
 ////////////////////////   CREATE   ////////////////////////
 app.get('/create', async (req,res)=>{
-  res.send(getCreate());
+  res.render('create');
 });
 
 app.post('/create', (req, res) => {
   const { name, code } = req.body;
-  console.log(`Provider Name: ${name}, Provider Code: ${code}`);
   setProvider({name, code});
   res.redirect('/');
 });
@@ -62,14 +60,14 @@ app.get('/p/:providerName', async (req, res) => {
   provider.otp = getOtp(provider);
   provider.secsRemaining = secsRemaining();
 
-  res.send(getProvider({provider}));
+  res.render('provider',{provider});
 });
 
 
 ////////////////////////   DELETE   ////////////////////////
 app.get('/p/:providerName/delete', async (req, res) => {
   const p = await getProviders(req.params.providerName);
-  res.end(getDelete({provider: p.thisProvider}));
+  res.render('delete',{provider: p.thisProvider});
 });
 
 app.post('/p/:providerName/delete', async (req, res) => {
@@ -84,6 +82,7 @@ app.post('/p/:providerName/delete', async (req, res) => {
 
 
 ////////////////////////   LISTEN   ////////////////////////
+const port = 8080;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 });
