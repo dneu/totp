@@ -1,7 +1,5 @@
-import { createServer } from 'node:http';
 import { getProviders, getOtp, runOnLaunch, deleteProvider, setProvider } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
-import * as pug from 'pug';
 import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
@@ -11,16 +9,55 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', './views');
 
-/*const getIndex = pug.compileFile('templates/index.pug');
-const getProvider = pug.compileFile('templates/provider.pug');
-const getDelete = pug.compileFile('templates/delete.pug');
-const getCreate = pug.compileFile('templates/create.pug');*/
-
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Set up session management
+app.use(
+  expressSession({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+// Simple hardcoded user for authentication example
+const USER = { username: 'admin', password: 'password' };
+
+// GET route for the login page
+app.get('/login', (req, res) => {
+  res.render('login', { message: '' });
+});
+
+// POST route to handle login logic
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === USER.username && password === USER.password) {
+    req.session.user = username; // Save user to session
+    return res.redirect('/index'); // Redirect on success
+  } else {
+    res.render('login', { message: 'Invalid username or password' });
+  }
+});
+
+// Route to log out
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.redirect('/dashboard');
+    res.redirect('/login');
+  });
+});
+
 
 
 ////////////////////////   INDEX   ////////////////////////
 app.get('/',async (req,res)=>{
+  const user = req.session.user;
+  if(!user){
+    res.redirect('/login');
+    return;
+  }
+
   console.log('loading index');
   const p = await getProviders();
   console.log(JSON.stringify(p));
