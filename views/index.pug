@@ -1,0 +1,13 @@
+html
+  head
+    title TOTP timeout
+  body
+    h1= 'TOTP timeout'
+    h3= 'Providers:'
+    ul
+      each name in providerNames
+        li
+          a(href='/p/' + name.toLowerCase())= name
+    a(href='/create')= 'Add new provider'
+    br
+    a(href='/logout')= 'Log out'

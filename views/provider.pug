@@ -1,0 +1,11 @@
+html
+  head
+    title= provider.name
+  body
+    h1= provider.name
+    h3= provider.otp
+    p= 'Seconds remaining: ' + provider.secsRemaining
+    p
+      a(href='/')= 'Back'
+    p
+      a(href='/p/' + provider.name.toLowerCase() + '/delete')= 'Delete'
