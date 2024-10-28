@@ -1,4 +1,4 @@
-import { getProviders, getOtp, runOnLaunch, deleteProvider, setProvider } from './app/providers.js';
+import { getProviders, getOtp, runOnLaunch, deleteProvider, setProvider, readConfig } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -8,20 +8,39 @@ const app = express();
 
 app.set('view engine', 'pug');
 app.set('views', './views');
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
+////////////////////////   LOG IN STUFF   ////////////////////////
 // Set up session management
 app.use(
   expressSession({
-    secret: 'your-secret-key',
+    secret: await readConfig('session_key'),
     resave: false,
     saveUninitialized: true,
   })
 );
 
 // Simple hardcoded user for authentication example
-const USER = { username: 'admin', password: 'password' };
+const USER = { username: 'admin', password: 'whatafundntest' };
+
+
+// Login middleware
+app.use((req, res, next) => {
+  console.log('path: ' + req.path);
+  if (req.path === '/login' && req.session.user) {
+    console.log('user defined');
+    res.redirect('/');
+    return;
+  }
+  else if(req.path !== '/login' && !req.session.user){
+    console.log('redirecting to login')
+    res.redirect('/login');
+    return;
+  }
+  next();
+});
+
+
 
 // GET route for the login page
 app.get('/login', (req, res) => {
@@ -34,7 +53,7 @@ app.post('/login', (req, res) => {
 
   if (username === USER.username && password === USER.password) {
     req.session.user = username; // Save user to session
-    return res.redirect('/index'); // Redirect on success
+    return res.redirect('/'); // Redirect on success
   } else {
     res.render('login', { message: 'Invalid username or password' });
   }
@@ -49,15 +68,8 @@ app.get('/logout', (req, res) => {
 });
 
 
-
 ////////////////////////   INDEX   ////////////////////////
 app.get('/',async (req,res)=>{
-  const user = req.session.user;
-  if(!user){
-    res.redirect('/login');
-    return;
-  }
-
   console.log('loading index');
   const p = await getProviders();
   console.log(JSON.stringify(p));

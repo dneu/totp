@@ -96,6 +96,25 @@ export async function deleteProvider(providers, provider){
   }
 }
 
+export async function readConfig(key){
+  let db;
+  try{
+    db = await open({
+      filename: dbPath,
+      mode: sqlite3.OPEN_READONLY,
+      driver: sqlite3.Database
+    });
+    const result = await db.get('SELECT value FROM config WHERE key = ?',[key]);
+    return result.value;
+  } catch(e){
+    console.log(`DB error (${dbPath})`);
+    console.log(e);
+    throw e;
+  } finally{
+    if(db) db.close();
+  }
+}
+
 
 async function insertDataTest(){
   const db = await new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE);
