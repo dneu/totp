@@ -4,10 +4,18 @@ import {openDb} from './db.js';
 
 //TODO: rename
 export async function getUserSettings(username, providerName){
-  const providers = await _getRawUserData(username);
+  const userData = await _getRawUserData(username);
+  if(!userData){
+    return undefined;
+  }
+  
+  const providers = JSON.parse(userData.settings);
+  console.log(providers);
   const thisProvider = providers.find(p=>p.name.toLowerCase() === providerName);
   const providerNames = providers.map(p=>p.name);
   return {
+    username: userData.username,
+    pass: userData.pass,
     providers,
     providerNames,
     thisProvider
@@ -18,13 +26,12 @@ export async function setProvider(username, provider){
   let db;
   try{
     const userSettings = await getUserSettings(username);
-    console.log('userSettings: ' + JSON.stringify(userSettings));
     const settings = userSettings.providers;
-    console.log('settings: ' + JSON.stringify(settings));
     settings.push(provider);
     const newJson = JSON.stringify(settings);
     db = await openDb('rw');
     const result = await db.run('update users set settings = ? where username = ?',newJson,username);
+    return settings;
   } finally{
     if(db) db.close();
   }
@@ -40,8 +47,7 @@ async function _getRawUserData(username){
   let db;
   try{
     db = await openDb('r');
-    const result = await db.get('SELECT * FROM users WHERE username = ?',[username]);
-    return JSON.parse(result.settings);
+    return await db.get('SELECT * FROM users WHERE username = ?',[username]);
   } finally{
     if(db) db.close();
   }
@@ -72,19 +78,17 @@ export async function readConfig(key){
   }
 }
 
+export async function createUser(username,hashedPass){
+  let db;
+  try{
+    db = await openDb('rw');
+    await db.run(`INSERT INTO users (username, pass, settings) VALUES (?, ?, ?)`,[username, hashedPass,'[]']);
+  } finally{
+    if(db) db.close();
+  }
+}
 
-async function insertDataTest(){
-  const db = await new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE);
-  const insertData = (username, settings) => {
-    const sql = `INSERT INTO users (username, settings) VALUES (?, ?)`;
-  
-    db.run(sql, [username, settings], function(err) {
-      if (err) {
-        return console.error(err.message);
-      }
-      console.log(`A row has been inserted with rowid ${this.lastID}`);
-    });
-  }; 
+export async function isAuthorizedToRegister(authcode){
 
-  db.close();
+
 }

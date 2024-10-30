@@ -1,4 +1,4 @@
-import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig } from './app/providers.js';
+import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig, createUser } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -11,8 +11,6 @@ app.set('view engine', 'pug');
 app.set('views', './views');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const theUser='danny';
-
 ////////////////////////   LOG IN STUFF   ////////////////////////
 // Set up session management
 app.use(
@@ -23,25 +21,28 @@ app.use(
   })
 );
 
-// Simple hardcoded user for authentication example
-const USER = { username: 'admin', password: 'whatafundntest' };
-
 app.get('/register', (req, res) => {
   res.render('register', { message: '' });
 });
 
-// POST: Handle user registration
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, authcode } = req.body;
 
-  //TODO: make not a in-memory store
-  if (users[username]) {
+  const foundUser = await getUserSettings(username);
+  
+  if (authcode !== (await readConfig('auth_code'))) {
+    console.log('wrong auth code');
+    return res.render('register', { message: 'Wrong auth code!' });
+  }
+
+  if (!!foundUser) {
+    console.log(`User ${username} already exists`);
     return res.render('register', { message: 'User already exists!' });
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash password
-    users[username] = hashedPassword; // Store hashed password
+    const hashedPass = await bcrypt.hash(password, 10);
+    await createUser(username, hashedPass)  
     res.redirect('/login');
   } catch (error) {
     res.render('register', { message: 'Error registering user!' });
@@ -52,7 +53,6 @@ app.post('/register', async (req, res) => {
 // Login middleware
 app.use((req, res, next) => {
   if (req.path === '/login' && req.session.user) {
-    console.log('user defined');
     res.redirect('/');
     return;
   }
@@ -64,20 +64,20 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 // GET route for the login page
 app.get('/login', (req, res) => {
   res.render('login', { message: '' });
 });
 
 // POST route to handle login logic
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  if (username === USER.username && password === USER.password) {
-    req.session.user = username; // Save user to session
-    return res.redirect('/'); // Redirect on success
+  const userSettings = await getUserSettings(username);
+  const passwordMatch = await bcrypt.compare(password,userSettings?.pass);
+  if (username === userSettings?.username && passwordMatch) {
+    req.session.user = username;
+    return res.redirect('/');
   } else {
     res.render('login', { message: 'Invalid username or password' });
   }
@@ -89,15 +89,13 @@ app.get('/logout', (req, res) => {
     if (err) return res.redirect('/dashboard');
     res.redirect('/login');
   });
-});
+});   
 
 
 ////////////////////////   INDEX   ////////////////////////
 app.get('/',async (req,res)=>{
-  console.log('loading index');
-  const p = await getUserSettings(theUser);
-  console.log(JSON.stringify(p));
-  res.render('index',{providerNames: p.providerNames});
+  const providers = await getUserSettings(req.session.user);
+  res.render('index',{providerNames: providers.providerNames});
 });
 
 
@@ -108,14 +106,14 @@ app.get('/create', async (req,res)=>{
 
 app.post('/create', (req, res) => {
   const { name, code } = req.body;
-  setProvider(theUser,{name, code});
+  setProvider(req.session.user, {name, code});
   res.redirect('/');
 });
 
 
 ////////////////////////   VIEW   ////////////////////////
 app.get('/p/:providerName', async (req, res) => {
-  const p = await getUserSettings(theUser, req.params.providerName);
+  const p = await getUserSettings(req.session.user, req.params.providerName);
 
   if(!p.thisProvider){
     res.send(`Valid provider names: ${p.providerNames.join(', ')}`);
@@ -139,13 +137,13 @@ app.get('/p/:providerName', async (req, res) => {
 
 ////////////////////////   DELETE   ////////////////////////
 app.get('/p/:providerName/delete', async (req, res) => {
-  const p = await getUserSettings(theUser, req.params.providerName);
+  const p = await getUserSettings(req.session.user, req.params.providerName);
   res.render('delete',{provider: p.thisProvider});
 });
 
 app.post('/p/:providerName/delete', async (req, res) => {
   if(req.body.action === 'delete'){
-    await deleteProvider(theUser, req.params.providerName);
+    await deleteProvider(req.session.user, req.params.providerName);
     res.redirect('/');
     return;
   }
