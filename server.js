@@ -1,4 +1,4 @@
-import { getProviders, getOtp, deleteProvider, setProvider, readConfig } from './app/providers.js';
+import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -11,8 +11,7 @@ app.set('view engine', 'pug');
 app.set('views', './views');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const users = {};
-
+const theUser='danny';
 
 ////////////////////////   LOG IN STUFF   ////////////////////////
 // Set up session management
@@ -52,13 +51,12 @@ app.post('/register', async (req, res) => {
 
 // Login middleware
 app.use((req, res, next) => {
-  console.log('path: ' + req.path);
   if (req.path === '/login' && req.session.user) {
     console.log('user defined');
     res.redirect('/');
     return;
   }
-  else if(req.path !== '/login' && !req.session.user){
+  else if(req.path !== '/login' && !req.session.user && !req.path.endsWith('.ico')){
     console.log('redirecting to login')
     res.redirect('/login');
     return;
@@ -87,7 +85,7 @@ app.post('/login', (req, res) => {
 
 // Route to log out
 app.get('/logout', (req, res) => {
-  req.session.destroy((err) => {
+  req.session.destroy((err) => {5
     if (err) return res.redirect('/dashboard');
     res.redirect('/login');
   });
@@ -97,7 +95,7 @@ app.get('/logout', (req, res) => {
 ////////////////////////   INDEX   ////////////////////////
 app.get('/',async (req,res)=>{
   console.log('loading index');
-  const p = await getProviders();
+  const p = await getUserSettings(theUser);
   console.log(JSON.stringify(p));
   res.render('index',{providerNames: p.providerNames});
 });
@@ -110,14 +108,14 @@ app.get('/create', async (req,res)=>{
 
 app.post('/create', (req, res) => {
   const { name, code } = req.body;
-  setProvider({name, code});
+  setProvider(theUser,{name, code});
   res.redirect('/');
 });
 
 
 ////////////////////////   VIEW   ////////////////////////
 app.get('/p/:providerName', async (req, res) => {
-  const p = await getProviders(req.params.providerName);
+  const p = await getUserSettings(theUser, req.params.providerName);
 
   if(!p.thisProvider){
     res.send(`Valid provider names: ${p.providerNames.join(', ')}`);
@@ -141,14 +139,13 @@ app.get('/p/:providerName', async (req, res) => {
 
 ////////////////////////   DELETE   ////////////////////////
 app.get('/p/:providerName/delete', async (req, res) => {
-  const p = await getProviders(req.params.providerName);
+  const p = await getUserSettings(theUser, req.params.providerName);
   res.render('delete',{provider: p.thisProvider});
 });
 
 app.post('/p/:providerName/delete', async (req, res) => {
-  const p = await getProviders(req.params.providerName);
   if(req.body.action === 'delete'){
-    await deleteProvider(p.providers, p.thisProvider);
+    await deleteProvider(theUser, req.params.providerName);
     res.redirect('/');
     return;
   }
