@@ -52,11 +52,7 @@ export async function deleteProvider(username, providerName){
   let db;
   try{
     const providers = (await getUserSettings(username)).providers;
-    console.log('pre delete: ');
-    console.log(providers);
     const newProviders = providers.filter(p=> p.name!==providerName);
-    console.log('post delete: ');
-    console.log(newProviders);
     const newJson = JSON.stringify(newProviders);
     const db = await openDb('rw');
     const result = await db.run('update users set settings = ? where username = ?',newJson,username);
