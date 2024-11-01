@@ -1,0 +1,63 @@
+body{
+  background-color: rgb(218, 231, 255);
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+}
+
+.content {
+    color: #333;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+.container table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  padding: 2em;
+}
+
+td{
+  padding: 0.2em;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  text-align: center;
+}
+
+ul li {
+  display: block; 
+  max-width: 300px;
+  width: 100%;
+  margin: 10px auto;
+}
+
+ul li a {
+  display: block; /* Makes the <a> tag fill the entire <li> */
+  padding: 10px; /* Space inside the box */
+  background-color: #f9f9f9; /* Light background color for the box */
+  border: 1px solid #ddd; /* Border around each box */
+  border-radius: 5px; /* Rounded corners */
+  color: #333; /* Text color */
+  text-decoration: none; /* Remove underline */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  text-align: left; /* Align text inside the box to the left */
+}
+
+ul li a:hover {
+  background-color: #e0e0e0; /* Optional: hover effect */
+}
