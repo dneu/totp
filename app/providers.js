@@ -10,7 +10,7 @@ export async function getUserSettings(username, providerName){
   }
   
   const providers = JSON.parse(userData.settings);
-  console.log(providers);
+  console.log('Querying providers');
   const thisProvider = providers.find(p=>p.name.toLowerCase() === providerName);
   const providerNames = providers.map(p=>p.name);
   return {

@@ -29,7 +29,6 @@ app.post('/register', async (req, res) => {
   const { username, password, authcode } = req.body;
 
   if (authcode !== (await readConfig('auth_code'))) {
-    console.log('wrong auth code');
     return res.render('register', { message: 'Wrong auth code!' });
   }
 
@@ -86,8 +85,6 @@ app.post('/login', async (req, res) => {
     req.session.user = username;
     return res.redirect('/');
   } else {
-    console.log('password match? ' + passwordMatch);
-    console.log('userSettings?.username? ' + userSettings?.username);
     res.render('login', { message: 'Invalid username or password' });
   }
 });
@@ -115,8 +112,6 @@ app.get('/create', async (req,res)=>{
 
 app.post('/create', (req, res) => {
   const { name, code } = req.body;
-  console.log('code length: ' + code.length);
-  console.log('name length: ' + name.length);
   if(name.length > 80 || code.length > 80){
     res.render('create', { message: 'Too long!' });
     return;
