@@ -28,13 +28,16 @@ app.get('/register', (req, res) => {
 app.post('/register', async (req, res) => {
   const { username, password, authcode } = req.body;
 
-  const foundUser = await getUserSettings(username);
-  
   if (authcode !== (await readConfig('auth_code'))) {
     console.log('wrong auth code');
     return res.render('register', { message: 'Wrong auth code!' });
   }
 
+  if(username.length > 30 || password.length>120){
+    return res.render('register', { message: 'Invalid input' });
+  }
+
+  const foundUser = await getUserSettings(username);  
   if (!!foundUser) {
     console.log(`User ${username} already exists`);
     return res.render('register', { message: 'User already exists!' });
@@ -78,10 +81,13 @@ app.post('/login', async (req, res) => {
 
   const userSettings = await getUserSettings(username);
   const passwordMatch = await bcrypt.compare(password,userSettings?.pass);
+
   if (username === userSettings?.username && passwordMatch) {
     req.session.user = username;
     return res.redirect('/');
   } else {
+    console.log('password match? ' + passwordMatch);
+    console.log('userSettings?.username? ' + userSettings?.username);
     res.render('login', { message: 'Invalid username or password' });
   }
 });
