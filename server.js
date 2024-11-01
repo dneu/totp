@@ -56,13 +56,17 @@ app.use((req, res, next) => {
     res.redirect('/');
     return;
   }
-  else if(req.path !== '/login' && !req.session.user && !req.path.endsWith('.ico')){
+  else if(req.path !== '/login' && !req.session.user && !req.path.endsWith('.ico') && !req.path.endsWith('.css')){
     console.log('redirecting to login')
     res.redirect('/login');
     return;
   }
   next();
 });
+
+// Serve static content
+app.use(express.static('static'));
+
 
 // GET route for the login page
 app.get('/login', (req, res) => {

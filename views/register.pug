@@ -1,19 +1,20 @@
-doctype html
-html
-  head
-    title Registration page
-  body
-    h1 Register
-    if message
-      p #{message}
-    form(method='POST' action='/register')
-      label(for='username') Username:
-      input(type='text' name='username' required)
-      br
-      label(for='password') Password:
-      input(type='password' name='password' required)
-      br
-      label(for='password') Magic authorization code:
-      input(type='text' name='authcode')
-      br
-      button(type='submit') Login
+extends layout
+
+block title
+  | Registration page
+
+block content
+  h1 Register
+  if message
+    p #{message}
+  form(method='POST' action='/register')
+    label(for='username') Username:
+    input(type='text' name='username' required)
+    br
+    label(for='password') Password:
+    input(type='password' name='password' required)
+    br
+    label(for='password') Magic authorization code:
+    input(type='text' name='authcode')
+    br
+    button(type='submit') Login

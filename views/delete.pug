@@ -1,7 +1,9 @@
-html
-  head
-    title Delete Provider
-  body
+extends layout
+
+block title
+  | Delete Provider
+
+block content
     h1= 'Are you sure you want to delete ' + provider.name
     h3= 'This CANNOT be undone. Make sure you have backed up your 2FA key.'
     form(action=`/p/${provider.name.toLowerCase()}/delete`, method="POST")

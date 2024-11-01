@@ -1,16 +1,24 @@
-doctype html
-html
-  head
-    title Login Page
-  body
-    h1 Login
-    if message
-      p #{message}
-    form(method='POST' action='/login')
-      label(for='username') Username:
-      input(type='text' name='username' required)
-      br
-      label(for='password') Password:
-      input(type='password' name='password' required)
-      br
-      button(type='submit') Login
+extends layout
+
+block title
+  | Login Page
+
+block content
+  h1 Login
+  if message
+    p #{message}
+  form(method='POST' action='/login')
+    table
+      tr
+        td
+          label(for='username') Username:
+        td
+          input(type='text' name='username' required)
+      tr
+        td
+          label(for='password') Password:
+        td
+          input(type='password' name='password' required)
+      tr
+        td(colspan=2)
+          button(type='submit') Login
