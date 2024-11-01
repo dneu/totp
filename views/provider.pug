@@ -6,8 +6,42 @@ block title
 block content
   h1= provider.name
   h3= provider.otp
-  p= 'Seconds remaining: ' + provider.secsRemaining
+  p= 'Seconds remaining: '
+    span(id='secs')
   p
     a(href='/')= 'Back'
   p
     a(href='/p/' + provider.name.toLowerCase() + '/delete')= 'Delete'
+  script.
+    async function sleep(ms){
+      return new Promise(r=>setTimeout(r,ms));
+    }
+
+    function secsRemaining(){
+      return 30-((new Date().getSeconds())%30);
+    }
+
+    function updateSecs(reload = true){
+      const numSecs=secsRemaining();
+      if(numSecs === 30 && reload){
+        location.reload();
+        return;
+      }
+
+      const secs=document.getElementById('secs');
+      if(!secs) return;
+
+      secs.textContent = numSecs;
+      console.log(new Date().getSeconds());
+      console.log(new Date().getMilliseconds());
+    }
+
+    let timeout;
+    (async () => { 
+      updateSecs(false);
+      // Don't know if the plus 5 is necessary but yolo
+      await sleep(1000-new Date().getMilliseconds());
+      updateSecs();
+
+      timeout=setInterval(updateSecs,1000);
+    })();

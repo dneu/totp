@@ -6,11 +6,17 @@ block title
 block content
   h1 Add new 2FA provider
   form(action="/create" method="POST")
-    label(for="providerName") Provider Name: 
-    input#providerName(type="text" name="name" required)
-    br
-    label(for="providerCode") Provider Code: 
-    input#providerCode(type="text" name="code" required)
-    br
+    table
+      tr
+        td
+          label(for="providerName") Provider Name: 
+        td
+          input#providerName(type="text" name="name" required)
+      tr
+        td
+          label(for="providerCode") Provider Code: 
+        td
+          input#providerCode(type="text" name="code" required)
     br
     button(type="submit") Add Provider
+    br
