@@ -1,4 +1,4 @@
-import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig, createUser } from './app/providers.js';
+import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig, createUser, isValidCode } from './app/providers.js';
 import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -57,7 +57,6 @@ app.use((req, res, next) => {
     return;
   }
   else if(req.path !== '/login' && !req.session.user && !req.path.endsWith('.ico') && !req.path.endsWith('.css')){
-    console.log('redirecting to login')
     res.redirect('/login');
     return;
   }
@@ -110,6 +109,16 @@ app.get('/create', async (req,res)=>{
 
 app.post('/create', (req, res) => {
   const { name, code } = req.body;
+  console.log('code length: ' + code.length);
+  console.log('name length: ' + name.length);
+  if(name.length > 80 || code.length > 80){
+    res.render('create', { message: 'Too long!' });
+    return;
+  }
+  if(!isValidCode(code)){
+    res.render('create', { message: 'Invalid OTP code!' });
+    return;
+  }
   setProvider(req.session.user, {name, code});
   res.redirect('/');
 });

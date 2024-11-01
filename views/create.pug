@@ -5,18 +5,23 @@ block title
 
 block content
   h1 Add new 2FA provider
+  if message
+    p #{message}
   form(action="/create" method="POST")
     table
       tr
         td
           label(for="providerName") Provider Name: 
         td
-          input#providerName(type="text" name="name" required)
+          input#providerName(type="text" name="name" required maxlength="50")
       tr
         td
           label(for="providerCode") Provider Code: 
         td
-          input#providerCode(type="text" name="code" required)
+          input#providerCode(type="text" name="code" required maxlength="50")
     br
     button(type="submit") Add Provider
     br
+    p
+      span(style="color: red;")="NOTE:"
+      span=" store this code securely somewhere! Write it in a book on your bookshelf." 

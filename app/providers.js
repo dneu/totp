@@ -39,8 +39,22 @@ export async function setProvider(username, provider){
 
 
 export function getOtp(provider){
-    const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
-    return otp;
+    try{
+      const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
+      return otp;
+    } catch(e){
+      return "Error!";
+    }
+}
+
+export function isValidCode(code){
+  try{
+    const { otp } = TOTP.generate(code.replaceAll(" ", ""));
+    return true;
+  } catch(e){
+    return false;
+  }
+
 }
 
 async function _getRawUserData(username){
@@ -86,9 +100,4 @@ export async function createUser(username,hashedPass){
   } finally{
     if(db) db.close();
   }
-}
-
-export async function isAuthorizedToRegister(authcode){
-
-
 }
