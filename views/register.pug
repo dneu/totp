@@ -8,13 +8,22 @@ block content
   if message
     p #{message}
   form(method='POST' action='/register')
-    label(for='username') Username:
-    input(type='text' name='username' required)
-    br
-    label(for='password') Password:
-    input(type='password' name='password' required)
-    br
-    label(for='password') Magic authorization code:
-    input(type='text' name='authcode')
+    table
+      tr
+        td
+          label(for='username') Username:
+        td
+          input(type='text' name='username' required)
+      tr
+        td
+          label(for='password') Password:
+        td
+          input(type='password' name='password' required)
+      tr
+        td
+          label(for='password') Magic authorization code:
+        td
+          input(type='text' name='authcode')
     br
     button(type='submit') Login
+    br
