@@ -1,5 +1,5 @@
 import { getUserSettings, getOtp, deleteProvider, setProvider, readConfig, createUser, isValidCode } from './app/providers.js';
-import { secsRemaining, isAccessible, accessibleHours } from './app/util.js';
+import { secsRemaining, isAccessible, accessibleHours, lockoutExplain } from './app/util.js';
 import express from 'express';
 import bodyParser from 'body-parser';
 import expressSession from 'express-session';
@@ -54,12 +54,22 @@ app.post('/register', async (req, res) => {
 
 // Login middleware
 app.use((req, res, next) => {
+  const isFile = req.path.endsWith('.ico') || req.path.endsWith('.css');
+  if(isFile){
+    next();
+    return;
+  }
+
   if (req.path === '/login' && req.session.user) {
     res.redirect('/');
     return;
   }
-  else if(req.path !== '/login' && !req.session.user && !req.path.endsWith('.ico') && !req.path.endsWith('.css')){
+  else if(req.path !== '/login' && !req.session.user){
     res.redirect('/login');
+    return;
+  }
+  else if(req.path === '/lockout' && isAccessible()){
+    res.redirect('/');
     return;
   }
   next();
@@ -104,13 +114,19 @@ app.get('/',async (req,res)=>{
   res.render('index',{providerNames: providers.providerNames});
 });
 
+app.get('/lockout',async (req,res)=>{
+
+  res.render('lockout',{explain: lockoutExplain()});
+});
+
+
 
 ////////////////////////   CREATE   ////////////////////////
 app.get('/create', async (req,res)=>{
   res.render('create');
 });
 
-app.post('/create', (req, res) => {
+app.post('/create', async (req, res) => {
   const { name, code } = req.body;
   if(name.length > 80 || code.length > 80){
     res.render('create', { message: 'Too long!' });
@@ -120,7 +136,21 @@ app.post('/create', (req, res) => {
     res.render('create', { message: 'Invalid OTP code!' });
     return;
   }
-  setProvider(req.session.user, {name, code});
+  
+  const userSettings = await getUserSettings(req.session.user, req.params.providerName);
+  const maxProviders=20;
+
+  if(userSettings.providers.find(p=>p.name === name)){
+    res.render('create', { message: `Error: ${name} already exists!` });
+    return;
+
+  }
+
+  if(userSettings.providers.length>=maxProviders){
+    res.render('create', { message: `Error: can't create more than ${maxProviders} providers` });
+    return;
+  }
+  setProvider(userSettings, req.session.user, {name, code});
   res.redirect('/');
 });
 
@@ -137,8 +167,7 @@ app.get('/p/:providerName', async (req, res) => {
   const provider = p.thisProvider;
 
   if(!(await isAccessible())){
-    console.log('is not accessible');
-    res.end(`Code is only accessible within 15 minutes of these hours: ${accessibleHours.join(', ')}`);
+    res.redirect('/lockout');
     return;
   }
 

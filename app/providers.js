@@ -1,4 +1,3 @@
-import sqlite3 from 'sqlite3';
 import { TOTP } from 'totp-generator';
 import {openDb} from './db.js';
 
@@ -22,10 +21,9 @@ export async function getUserSettings(username, providerName){
   }; 
 }
 
-export async function setProvider(username, provider){
+export async function setProvider(userSettings, username, provider){
   let db;
   try{
-    const userSettings = await getUserSettings(username);
     const settings = userSettings.providers;
     settings.push(provider);
     const newJson = JSON.stringify(settings);

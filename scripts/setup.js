@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-let targetDir = os.type().includes('Windows') ? 'C:\\usr\\lib\\totp' : '/usr/lib/topt/';
+let targetDir = os.type().includes('Windows') ? 'C:\\usr\\lib\\totp' : '/usr/lib/totp/';
 
 const excludedDirs=['node_modules', 'secrets','.git'];
 const excludedFiles=['.gitignore','README.md'];

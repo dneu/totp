@@ -9,7 +9,7 @@
     "dbWin": "sqlite3 C:\\Users\\danny\\AppData\\Roaming\\totp\\totp.db",
     "dbLinux": "sqlite3 $HOME/.local/share/totp/totp.db",
     "stopProd": "pm2 delete server",
-    "reloadProd": "git pull && sudo node scripts/setup.js && npm install /usr/lib/topt/ && pm2 delete server ; pm2 start /usr/lib/topt/server.js"
+    "reloadProd": "git pull && npm install && pm2 delete server ; pm2 start"
   },
   "author": "",
   "license": "ISC",

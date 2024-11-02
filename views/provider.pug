@@ -1,7 +1,7 @@
 extends layout
 
 block title
-  provider.name
+  | #{provider.name}
 
 block content
   h1= provider.name
@@ -32,8 +32,6 @@ block content
       if(!secs) return;
 
       secs.textContent = numSecs;
-      console.log(new Date().getSeconds());
-      console.log(new Date().getMilliseconds());
     }
 
     let timeout;
