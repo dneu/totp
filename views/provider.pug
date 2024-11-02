@@ -5,7 +5,9 @@ block title
 
 block content
   h1= provider.name
-  h3= provider.otp
+  if message
+    p(style="max-width: 20em; margin: 0 auto;") #{message}
+  h3(id='otp')= provider.otp
   p= 'Seconds remaining: '
     span(id='secs')
   p
@@ -21,11 +23,16 @@ block content
       return 30-((new Date().getSeconds())%30);
     }
 
-    function updateSecs(reload = true){
+    async function update(reload = true){
       const numSecs=secsRemaining();
       if(numSecs === 30 && reload){
-        location.reload();
-        return;
+        const otpDiv = document.getElementById('otp');
+        const response = await fetch('/code');
+        if(!response.ok){
+          otpDiv.textContent='Error!';
+        }
+        const code = await response.text();
+        otpDiv.innerText = code;
       }
 
       const secs=document.getElementById('secs');
@@ -36,10 +43,10 @@ block content
 
     let timeout;
     (async () => { 
-      updateSecs(false);
+      update(false);
       // Don't know if the plus 5 is necessary but yolo
       await sleep(1000-new Date().getMilliseconds());
-      updateSecs();
+      update();
 
-      timeout=setInterval(updateSecs,1000);
+      timeout=setInterval(update,1000);
     })();

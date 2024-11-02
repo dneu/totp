@@ -36,11 +36,12 @@ export async function setProvider(userSettings, username, provider){
 }
 
 
-export function getOtp(provider){
+export function getOtp(code){
     try{
-      const { otp } = TOTP.generate(provider.code.replaceAll(" ", ""));
+      const { otp } = TOTP.generate(code.replaceAll(" ", ""));
       return otp;
     } catch(e){
+      console.log('could not generate with code ' + code);
       return "Error!";
     }
 }

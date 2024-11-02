@@ -150,8 +150,14 @@ app.post('/create', async (req, res) => {
     res.render('create', { message: `Error: can't create more than ${maxProviders} providers` });
     return;
   }
-  setProvider(userSettings, req.session.user, {name, code});
-  res.redirect('/');
+  const provider = {name, code};
+  setProvider(userSettings, req.session.user, provider);
+  
+  req.session.currentProviderCode = code;
+  provider.otp = getOtp(code);
+  console.log('message');
+  const message = `IMPORTANT: test this code before leaving this page, because this is the last time you'll be able to view it before getting locked out.`;
+  res.render('provider',{provider, message});
 });
 
 
@@ -171,12 +177,19 @@ app.get('/p/:providerName', async (req, res) => {
     return;
   }
 
-  provider.otp = getOtp(provider);
-  provider.secsRemaining = secsRemaining();
-
+  req.session.currentProviderCode = provider.code;
+  provider.otp = getOtp(provider.code);
   res.render('provider',{provider});
 });
 
+app.get('/code',(req,res)=>{
+  // Must set this when getting /p/providernames
+  if(!req.session.currentProviderCode){
+    res.send(`Error: no current provider code set`);
+    return;
+  }
+  res.send(getOtp(req.session.currentProviderCode));
+});
 
 ////////////////////////   DELETE   ////////////////////////
 app.get('/p/:providerName/delete', async (req, res) => {
