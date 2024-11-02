@@ -7,6 +7,12 @@ block content
   h1 Add new 2FA provider
   if message
     p #{message}
+    
+  h4= "Important notes"
+  ol
+    li= "These codes are technically visible to me, the site owner. If there's enough demand I might create a system to encrypt them make them unreadable to me."
+    li= "Store this code securely somewhere! Write it in a book on your bookshelf."
+  br
   form(action="/create" method="POST")
     table
       tr
@@ -22,6 +28,3 @@ block content
     br
     button(type="submit") Add Provider
     br
-    p
-      span(style="color: red;")="NOTE:"
-      span=" store this code securely somewhere! Write it in a book on your bookshelf." 
